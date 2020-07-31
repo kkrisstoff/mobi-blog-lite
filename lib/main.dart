@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:bloc/bloc.dart';
 
 import 'HomeScreen/home.dart';
 import 'UsersScreen/users.dart';
+import 'counter_observer.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  Bloc.observer = CounterObserver();
+  runApp(MyApp());
+}
 
 final String blogName = 'Tasty blog';
 
