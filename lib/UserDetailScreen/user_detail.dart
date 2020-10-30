@@ -25,7 +25,7 @@ class DetailScreen extends StatefulWidget {
   //   );
   // }
 
-    @override
+  @override
   _MyAppState createState() => _MyAppState();
 }
 
@@ -35,7 +35,7 @@ class _MyAppState extends State<DetailScreen> {
   @override
   void initState() {
     super.initState();
-    futureUserDesc = fetchAlbum(widget.user.id);
+    futureUserDesc = fetchUser(widget.user.id);
   }
 
   @override
@@ -63,8 +63,9 @@ class _MyAppState extends State<DetailScreen> {
 }
 
 // HTTP
-Future<UserDesc> fetchAlbum(id) async {
-  final response = await http.get('https://py-blog-lite.herokuapp.com/api/v0/users/${id}');
+Future<UserDesc> fetchUser(id) async {
+  final response =
+      await http.get('https://py-blog-lite.herokuapp.com/api/v0/users/$id');
 
   if (response.statusCode == 200) {
     return UserDesc.fromJson(json.decode(response.body));
@@ -81,24 +82,21 @@ class UserDesc {
   final int posts;
   final String avatar;
 
-
-  UserDesc({
-    this.id,
-    this.name,
-    this.aboutMe,
-    this.lastSeen,
-    this.posts,
-    this.avatar
-  });
+  UserDesc(
+      {this.id,
+      this.name,
+      this.aboutMe,
+      this.lastSeen,
+      this.posts,
+      this.avatar});
 
   factory UserDesc.fromJson(Map<String, dynamic> json) {
     return UserDesc(
-      id: json['id'],
-      name: json['username'],
-      aboutMe: json['about_me'],
-      lastSeen: json['last_seen'],
-      posts: json['post_count'],
-      avatar: json['_links']['avatar']
-    );
+        id: json['id'],
+        name: json['username'],
+        aboutMe: json['about_me'],
+        lastSeen: json['last_seen'],
+        posts: json['post_count'],
+        avatar: json['_links']['avatar']);
   }
 }

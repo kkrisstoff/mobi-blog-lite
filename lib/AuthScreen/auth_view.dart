@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import './auth.dart';
+import '../api/repository.dart';
 
 class AuthView extends StatelessWidget {
   static const routeName = '/auth';
@@ -24,37 +26,39 @@ class AuthFormState extends State<AuthForm> {
   final _formKey = GlobalKey<FormState>();
 
   final passwordController = TextEditingController();
+  final usernameController = TextEditingController();
+
+  final UserRepository _repository = RestRepository();
 
   @override
   void dispose() {
-    // Clean up the controller when the widget is removed from the
-    // widget tree.
+    // Clean up the controller when the widget is removed from the widget tree.
     passwordController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Build a Form widget using the _formKey created above.
     return Form(
         key: _formKey,
         child: Column(children: <Widget>[
-          Text('Email'),
+          Text('User Name'),
           TextFormField(
             decoration: InputDecoration(labelText: 'Enter your username'),
             validator: (value) {
               if (value.isEmpty) {
-                return 'Please enter some text';
+                return 'Please enter User Name';
               }
               return null;
             },
+            controller: usernameController,
           ),
           Text('Password'),
           TextFormField(
               decoration: InputDecoration(labelText: 'Enter password'),
               validator: (value) {
                 if (value.isEmpty) {
-                  return 'Please enter some text';
+                  return 'Please enter password';
                 }
                 return null;
               },
@@ -64,14 +68,31 @@ class AuthFormState extends State<AuthForm> {
             child: RaisedButton(
               onPressed: () {
                 if (_formKey.currentState.validate()) {
-                  // TODO: do smth
-                  Scaffold.of(context)
-                      .showSnackBar(SnackBar(content: Text('Processing Data')));
+                  _formKey.currentState.save();
+
+                  this.handleForm(context, usernameController.text,
+                      passwordController.text);
                 }
               },
               child: Text('Submit'),
             ),
           ),
         ]));
+  }
+
+  handleForm(BuildContext context, username, password) async {
+    final LoggedUser currentUser = await _repository.login(username, password);
+    if (currentUser == null) {
+      return Scaffold.of(context).showSnackBar(
+          SnackBar(content: Text('Invalid username or password')));
+    }
+
+    print('>>>');
+    print(currentUser.token);
+    // Navigator.pushNamed(context, UsersPage.routeName,
+    //     arguments: ScreenArguments(
+    //       'Users Screen',
+    //       'Some sub-title',
+    //     ));
   }
 }

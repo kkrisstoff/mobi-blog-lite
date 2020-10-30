@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 import '../UserDetailScreen/user_detail.dart';
-
-
-
-final usersURL = 'https://py-blog-lite.herokuapp.com/api/v0/users';
+import '../api/repository.dart';
 
 class UsersPage extends StatefulWidget {
   static const routeName = '/users';
@@ -18,17 +13,17 @@ class UsersPage extends StatefulWidget {
 class _UsersState extends State<UsersPage> {
   Future<List<User>> futureUsers;
 
+  final UserRepository _repository = RestRepository();
+
   @override
   void initState() {
     super.initState();
-    futureUsers = fetchUsers();
- 
+    futureUsers = _repository.getAllUsers();
   }
 
   @override
   Widget build(BuildContext context) {
     final ScreenArguments args = ModalRoute.of(context).settings.arguments;
-       
 
     return Scaffold(
       appBar: AppBar(
@@ -38,33 +33,32 @@ class _UsersState extends State<UsersPage> {
         child: FutureBuilder<List<User>>(
           future: futureUsers,
           builder: (context, snapshot) {
-            if (snapshot.hasData) {   
+            if (snapshot.hasData) {
               return ListView.builder(
-                itemCount: snapshot.data.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(snapshot.data[index].name,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 20,
-                      )
-                    ),
-                    subtitle: Text(snapshot.data[index].aboutMe ?? 'no BIO'),
-                    leading: Icon(
-                      Icons.work,
-                      color: Colors.blue[500],
-                    ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DetailScreen(user: snapshot.data[index]),
-                        ),
-                      );
-                    },
-                  );
-                }
-              );
+                  itemCount: snapshot.data.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text(snapshot.data[index].name,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 20,
+                          )),
+                      subtitle: Text(snapshot.data[index].aboutMe ?? 'no BIO'),
+                      leading: Icon(
+                        Icons.work,
+                        color: Colors.blue[500],
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                DetailScreen(user: snapshot.data[index]),
+                          ),
+                        );
+                      },
+                    );
+                  });
             } else if (snapshot.hasError) {
               return Text("${snapshot.error}");
             }
@@ -75,15 +69,14 @@ class _UsersState extends State<UsersPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: Icon(Icons.navigate_before),
-        ),
+        onPressed: () {
+          Navigator.pop(context);
+        },
+        child: Icon(Icons.navigate_before),
+      ),
     );
   }
 }
-
 
 class ScreenArguments {
   final String title;
@@ -105,18 +98,6 @@ class User {
       json['username'],
       json['about_me'],
     );
-  }
-}
-
-// HTTP
-Future<List<User>> fetchUsers() async {
-  final response = await http.get(usersURL);
-
-  if (response.statusCode == 200) {
-    List list = json.decode(response.body);
-    return list.map((data) => User.fromJson(data)).toList();
-  } else {
-    throw Exception('Failed to load user');
   }
 }
 
