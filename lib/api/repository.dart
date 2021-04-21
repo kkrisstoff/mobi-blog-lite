@@ -1,6 +1,6 @@
 import 'HTTP_client.dart';
 import '../UsersScreen/users.dart';
-import '../AuthScreen/auth.dart';
+import '../screens/AuthScreen/auth.dart';
 
 abstract class UserRepository {
   Future<LoggedUser> login(String username, String password);

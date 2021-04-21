@@ -1,10 +1,9 @@
-import 'package:blog_lite/AuthScreen/auth_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import './counter/counter.dart';
-import '../UsersScreen/users.dart';
-import '../AuthScreen/auth_view.dart';
+import '../../UsersScreen/users.dart';
+import '../AuthScreen/auth_screen.dart';
 
 class HomePage extends StatelessWidget {
   static const routeName = '/';
@@ -15,8 +14,13 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text(this.title), centerTitle: true),
-        body: LogOutsButton());
+      appBar: AppBar(
+        title: Text(this.title),
+        centerTitle: true,
+      ),
+      body: LogOutsButton(),
+      // body: ShowUsersButton(),
+    );
     // body: Column(
     //   children: <Widget>[ShowUsersButton(), LogOutsButton()],
     // ));
@@ -61,7 +65,7 @@ class LogOutsButton extends StatelessWidget {
       icon: const Icon(Icons.navigate_next),
       label: Text('Log Out Users'),
       onPressed: () {
-        Navigator.pushNamed(context, AuthView.routeName,
+        Navigator.pushNamed(context, AuthScreen.routeName,
             arguments: ScreenArguments(
               'Users Screen',
               'Some sub-title',
