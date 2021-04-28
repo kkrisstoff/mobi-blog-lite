@@ -1,5 +1,5 @@
 import 'HTTP_client.dart';
-import '../UsersScreen/users.dart';
+import '../screens/UsersScreen/users_screen.dart';
 import '../screens/AuthScreen/auth.dart';
 
 abstract class UserRepository {
@@ -11,7 +11,8 @@ abstract class UserRepository {
 }
 
 class _Urls {
-  static const baseUrl = "https://py-blog-lite.herokuapp.com/api/v0/";
+  // static const baseUrl = "https://py-blog-lite.herokuapp.com/api/v0/";
+  static const baseUrl = "http://localhost:5000/api/v0/";
   static const login = "${baseUrl}login";
   static const user = "${baseUrl}user";
   static const allUsers = "${baseUrl}users";
@@ -42,6 +43,7 @@ class RestRepository extends UserRepository {
 
   @override
   Future<List<User>> getAllUsers() async {
+    print(_Urls.allUsers);
     final List<dynamic> userListJson =
         await _httpClient.getRequest(_Urls.allUsers);
 

@@ -1,8 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'auth.dart';
-import '../../api/repository.dart';
+import 'package:provider/provider.dart';
+
+import '../../providers/auth.dart';
+import '../../models/http_exeption.dart';
 
 enum AuthMode { Signup, Login }
 
@@ -93,17 +95,33 @@ class _AuthFormState extends State<AuthForm> {
   final GlobalKey<FormState> _formKey = GlobalKey();
   AuthMode _authMode = AuthMode.Login;
   Map<String, String> _authData = {
+    'username': '',
     'email': '',
     'password': '',
   };
   var _isLoading = false;
 
   final _passwordController = TextEditingController();
-  final usernameController = TextEditingController();
 
-  final UserRepository _repository = RestRepository();
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('An error occured'),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            child: Text('OK'),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+          )
+        ],
+      ),
+    );
+  }
 
-  void _submit() {
+  Future<void> _submit() async {
     // current
     // if (_formKey.currentState.validate()) {
     //   _formKey.currentState.save();
@@ -117,10 +135,35 @@ class _AuthFormState extends State<AuthForm> {
     setState(() {
       _isLoading = true;
     });
-    if (_authMode == AuthMode.Login) {
-      // Log user in
-    } else {
-      // Sign user up
+    try {
+      if (_authMode == AuthMode.Login) {
+        // Log user in
+        await Provider.of<Auth>(context, listen: false).login(
+          _authData["username"],
+          _authData["password"],
+        );
+      } else {
+        // Register User
+        await Provider.of<Auth>(context, listen: false).signup(
+          _authData["username"],
+          _authData["email"],
+          _authData["password"],
+        );
+      }
+    } on HttpException catch (error) {
+      var errorMessage = 'Authintification faild';
+      switch (error.toString()) {
+        case 'EXIST':
+          errorMessage = 'This iser already exist';
+          break;
+        case 'WEEK_PASSWORD':
+          errorMessage = 'This iser already exist';
+          break;
+      }
+      _showErrorDialog(errorMessage);
+    } catch (error) {
+      const errorMessage = 'Cant authintificate you';
+      _showErrorDialog(errorMessage);
     }
     setState(() {
       _isLoading = false;
@@ -174,10 +217,22 @@ class _AuthFormState extends State<AuthForm> {
                   return null;
                 },
                 onSaved: (value) {
-                  _authData['email'] = value;
+                  _authData['username'] = value;
                 },
-                // controller: usernameController,
               ),
+              if (_authMode == AuthMode.Signup)
+                TextFormField(
+                  decoration: InputDecoration(labelText: 'Enter your email'),
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'Please enter email';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {
+                    _authData['email'] = value;
+                  },
+                ),
               TextFormField(
                 decoration: InputDecoration(labelText: 'Enter password'),
                 validator: (value) {
