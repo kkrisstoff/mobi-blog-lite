@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import '../UsersScreen/users.dart';
+import '../UsersScreen/users_screen.dart';
 
 class DetailScreen extends StatefulWidget {
   // Declare a field that holds the Todo.
