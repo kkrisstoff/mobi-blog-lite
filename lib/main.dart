@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 // import 'package:bloc/bloc.dart';
-// import 'package:flutter/services.dart';
+import 'package:flutter/services.dart';
 
 import './screens/tabs_screen.dart';
 import './screens/UsersScreen/users_screen.dart';
@@ -15,18 +15,56 @@ import './providers/auth.dart';
 import './dummy_data.dart';
 import './models/post.dart';
 
+//shop App
+import './Shop/screens/products_overview_screen.dart';
+import './Shop/screens/product_detail_screen.dart';
+import './Shop/screens/card_screen.dart';
+import './Shop/screens/orders_screen.dart';
+import './Shop/screens/user_products_screen.dart';
+import './Shop/screens/edit_product_screen.dart';
+import './Shop/providers/products.dart';
+import './Shop/providers/cart.dart';
+import './Shop/providers/orders.dart';
+
 // void main() {
 //   // use only portrait mode ;)
 //   WidgetsFlutterBinding.ensureInitialized();
 //   SystemChrome.setPreferredOrientations(
 //       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-//   Bloc.observer = CounterObserver();
+//   // Bloc.observer = CounterObserver();
 //   runApp(MyApp());
 // }
 
-void main() => runApp(MyApp());
+void main() => runApp(ShopApp());
 
-final String blogName = 'Tasty blog';
+class ShopApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => Products()),
+        ChangeNotifierProvider(create: (_) => Cart()),
+        ChangeNotifierProvider(create: (_) => Orders()),
+      ],
+      child: MaterialApp(
+        title: 'MyShop',
+        theme: ThemeData(
+          primarySwatch: Colors.purple,
+          accentColor: Colors.deepOrange,
+          fontFamily: 'Raleway',
+        ),
+        home: ProductsOverviewScreen(),
+        routes: {
+          ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
+          CartScreen.routeName: (ctx) => CartScreen(),
+          OrdersScreen.routeName: (ctx) => OrdersScreen(),
+          UserProductsScreen.routeName: (ctx) => UserProductsScreen(),
+          EditProductScreen.routeName: (ctx) => EditProductScreen(),
+        },
+      ),
+    );
+  }
+}
 
 class MyApp extends StatefulWidget {
   @override
