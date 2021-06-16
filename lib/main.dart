@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 // import 'package:bloc/bloc.dart';
-import 'package:flutter/services.dart';
+// import 'package:flutter/services.dart';
 
 import './screens/tabs_screen.dart';
 import './screens/UsersScreen/users_screen.dart';
-import './screens/AuthScreen/auth_screen.dart';
+// import './screens/AuthScreen/auth_screen.dart';
 import './screens/CategoriesScreen/categories_screen.dart';
 import './screens/PostsScreen/posts_screen.dart';
 import './screens/PostDetailScreen/post_detail_screen.dart';
@@ -16,12 +16,14 @@ import './dummy_data.dart';
 import './models/post.dart';
 
 //shop App
+import './Shop/screens/splash_screen.dart';
 import './Shop/screens/products_overview_screen.dart';
 import './Shop/screens/product_detail_screen.dart';
 import './Shop/screens/card_screen.dart';
 import './Shop/screens/orders_screen.dart';
 import './Shop/screens/user_products_screen.dart';
 import './Shop/screens/edit_product_screen.dart';
+import './Shop/screens/auth_screen.dart';
 import './Shop/providers/products.dart';
 import './Shop/providers/cart.dart';
 import './Shop/providers/orders.dart';
@@ -42,25 +44,63 @@ class ShopApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => Products()),
-        ChangeNotifierProvider(create: (_) => Cart()),
-        ChangeNotifierProvider(create: (_) => Orders()),
-      ],
-      child: MaterialApp(
-        title: 'MyShop',
-        theme: ThemeData(
-          primarySwatch: Colors.purple,
-          accentColor: Colors.deepOrange,
-          fontFamily: 'Raleway',
+        ChangeNotifierProvider.value(
+          value: Auth(),
         ),
-        home: ProductsOverviewScreen(),
-        routes: {
-          ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
-          CartScreen.routeName: (ctx) => CartScreen(),
-          OrdersScreen.routeName: (ctx) => OrdersScreen(),
-          UserProductsScreen.routeName: (ctx) => UserProductsScreen(),
-          EditProductScreen.routeName: (ctx) => EditProductScreen(),
-        },
+        ChangeNotifierProxyProvider<Auth, Products>(
+          create: (ctx) => Products(
+            null,
+            null,
+            [],
+          ),
+          update: (ctx, auth, previousProducts) => Products(
+            auth.token,
+            auth.userId,
+            previousProducts == null ? [] : previousProducts.items,
+          ),
+        ),
+        ChangeNotifierProvider.value(
+          value: Cart(),
+        ),
+        ChangeNotifierProxyProvider<Auth, Orders>(
+          create: (ctx) => Orders(
+            null,
+            null,
+            [],
+          ),
+          update: (ctx, auth, previousOrders) => Orders(
+            auth.token,
+            auth.userId,
+            previousOrders == null ? [] : previousOrders.orders,
+          ),
+        ),
+      ],
+      child: Consumer<Auth>(
+        builder: (ctx, auth, _) => MaterialApp(
+          title: 'MyShop',
+          theme: ThemeData(
+            primarySwatch: Colors.purple,
+            accentColor: Colors.deepOrange,
+            fontFamily: 'Lato',
+          ),
+          home: auth.isAuth
+              ? ProductsOverviewScreen()
+              : FutureBuilder(
+                  future: auth.tryAutoLogin(),
+                  builder: (ctx, authResultSnapshot) =>
+                      authResultSnapshot.connectionState ==
+                              ConnectionState.waiting
+                          ? SplashScreen()
+                          : AuthScreen(),
+                ),
+          routes: {
+            ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
+            CartScreen.routeName: (ctx) => CartScreen(),
+            OrdersScreen.routeName: (ctx) => OrdersScreen(),
+            UserProductsScreen.routeName: (ctx) => UserProductsScreen(),
+            EditProductScreen.routeName: (ctx) => EditProductScreen(),
+          },
+        ),
       ),
     );
   }

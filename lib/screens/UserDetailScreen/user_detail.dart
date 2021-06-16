@@ -64,8 +64,11 @@ class _MyAppState extends State<DetailScreen> {
 
 // HTTP
 Future<UserDesc> fetchUser(id) async {
-  final response =
-      await http.get('https://py-blog-lite.herokuapp.com/api/v0/users/$id');
+  final url = Uri.https(
+    'https://py-blog-lite.herokuapp.com',
+    'api/v0/users/$id',
+  );
+  final response = await http.get(url);
 
   if (response.statusCode == 200) {
     return UserDesc.fromJson(json.decode(response.body));

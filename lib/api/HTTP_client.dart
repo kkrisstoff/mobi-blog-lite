@@ -18,7 +18,11 @@ class HttpClient {
     http.Response response;
 
     try {
-      response = await http.get(path);
+      final url = Uri.https(
+        path,
+        '',
+      );
+      response = await http.get(url);
       final statusCode = response.statusCode;
       if (statusCode >= 200 && statusCode < 299) {
         if (response.body.isEmpty) {
@@ -42,7 +46,11 @@ class HttpClient {
     http.Response response;
 
     try {
-      response = await http.post(path, body: jsonEncode(data), headers: {
+      final url = Uri.https(
+        path,
+        '',
+      );
+      response = await http.post(url, body: jsonEncode(data), headers: {
         'Content-Type': 'application/json',
         // 'Authorization': 'Bearer XXXXXXXXXXXX'
       });
